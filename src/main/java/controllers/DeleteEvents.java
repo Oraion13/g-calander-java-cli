@@ -10,9 +10,16 @@ import com.google.api.services.calendar.model.Event;
 public class DeleteEvents {
     EventsManagement eventsManagement = null;
 
-    public DeleteEvents(EventsManagement eventsManagement) throws IOException {
+    public DeleteEvents(EventsManagement eventsManagement) {
         this.eventsManagement = eventsManagement;
+    }
 
+    // main caller
+    public void deleteEvents() throws IOException {
+        System.out.print("\033[H\033[2J");
+        System.out.println("\n------------------------------------------");
+        System.out.println("\t\tDelete Events");
+        System.out.println("------------------------------------------\n");
         while (true) {
             System.out.println("Get events from - to...\nEnter '0' to exit...");
             System.out.print("Enter the start date(YYYY-MM-DD / 0): ");

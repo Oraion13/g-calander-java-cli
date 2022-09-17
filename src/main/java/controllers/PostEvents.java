@@ -71,8 +71,16 @@ public class PostEvents {
     }
 
     // Post constructor
-    public PostEvents(EventsManagement eventsManagement) throws IOException {
+    public PostEvents(EventsManagement eventsManagement) {
         this.eventsManagement = eventsManagement;
+    }
+
+    // main caller
+    public void postEvents() throws IOException {
+        System.out.print("\033[H\033[2J");
+        System.out.println("\n------------------------------------------");
+        System.out.println("\t\tPost Events");
+        System.out.println("------------------------------------------\n");
         while (true) {
             event = new Event();
 
@@ -98,7 +106,7 @@ public class PostEvents {
 
             eventsManagement.postEvent(event);
 
-            System.out.printf("Event created: %s\n", event.getHtmlLink());
+            System.out.println("Event created!!");
 
             break;
         }
@@ -117,7 +125,7 @@ public class PostEvents {
     }
 
     // default values for an event
-    private void setDefaultValues(Event event) {
+    protected void setDefaultValues(Event event) {
         System.out.print("Event summary: ");
         String summary = System.console().readLine();
 
@@ -177,7 +185,7 @@ public class PostEvents {
     }
 
     // get RRULE, RDATE, EXDATE
-    private void setReurrenceRules(Event event) {
+    protected void setReurrenceRules(Event event) {
         List<String> recurrence = new ArrayList<>();
         StringBuilder forComp = new StringBuilder("RRULE:");
         StringBuilder RRULE = new StringBuilder("RRULE:");
@@ -244,7 +252,7 @@ public class PostEvents {
     }
 
     // invite attendees for event
-    private void setAttendees(Event event) {
+    protected void setAttendees(Event event) {
         List<EventAttendee> attendees = new ArrayList<>();
 
         System.out.println("Enter 0 to exit...");
@@ -288,7 +296,7 @@ public class PostEvents {
     }
 
     // set remainder
-    private void setRemainder(Event event) {
+    protected void setRemainder(Event event) {
         List<EventReminder> reminders = new ArrayList<>();
 
         System.out.print("Set Email remainder?(y/n): ");
