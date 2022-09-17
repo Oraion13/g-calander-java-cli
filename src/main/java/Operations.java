@@ -2,6 +2,7 @@ import java.util.Scanner;
 
 import com.google.api.services.calendar.Calendar;
 
+import controllers.DeleteEvents;
 import controllers.EventsManagement;
 import controllers.GetEvents;
 import controllers.PostEvents;
@@ -29,9 +30,6 @@ public class Operations {
 
     /**
      * Prints the main options
-     * 0 - Exit
-     * 1 - Display events
-     * 2 - Create events
      */
     private void mainOptions() {
         System.out.print("\033[H\033[2J");
@@ -46,12 +44,17 @@ public class Operations {
     /**
      * Get a main operation choice
      * 
+     * 0 - Exit
+     * 1 - Display events
+     * 2 - Create events
+     * 3 - Delete events
+     * 
      * @return an intger value (main option)
      */
     private int mainOperations() {
         int choice = 0;
         try {
-            choice = 2;
+            choice = 3;
 
             switch (choice) {
                 // display events
@@ -62,6 +65,10 @@ public class Operations {
                 // create events
                 case 2:
                     new PostEvents(eventsManagement);
+                    break;
+
+                case 3:
+                    new DeleteEvents(eventsManagement);
                     break;
 
                 default:
