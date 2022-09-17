@@ -7,7 +7,6 @@ import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.EventReminder;
 
 import java.io.IOException;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -15,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -106,19 +106,14 @@ public class PostEvents {
 
     // get time for start and end
     private DateTime setStartAndEndTime(LocalDate ld) {
-        System.out.print("Add time?: ");
-        if (System.console().readLine().toLowerCase().equals("y")) {
-            System.out.print("Enter hour(HH)[0 - 23]: ");
-            int hour = Integer.parseInt(System.console().readLine());
-            System.out.print("Enter minute(MM)[0 - 59]: ");
-            int minute = Integer.parseInt(System.console().readLine());
+        System.out.print("Enter hour(HH)[0 - 23]: ");
+        int hour = Integer.parseInt(System.console().readLine());
+        System.out.print("Enter minute(MM)[0 - 59]: ");
+        int minute = Integer.parseInt(System.console().readLine());
 
-            ld.atTime(LocalTime.of(hour, minute, 00)).atZone(ZoneId.systemDefault()).toInstant();
-        } else {
-            ld.atStartOfDay(ZoneId.systemDefault()).toInstant();
-        }
+        return new DateTime(Date.from(ld.atTime(LocalTime.of(hour, minute, 00))
+                .atZone(ZoneId.systemDefault()).toInstant()));
 
-        return new DateTime(Date.from(Instant.from(ld)));
     }
 
     // default values for an event
@@ -132,32 +127,33 @@ public class PostEvents {
         // Start time
         System.out.print("Enter Start date(YYYY-MM-DD): ");
         String start = System.console().readLine();
-
         LocalDate startTime = LocalDate.parse(start);
 
-        // if all day event
-        System.out.print("Is an all day event?(y/n): ");
+        boolean timeFlag = false;
+        DateTime sTime = null;
+        System.out.print("Add start and end time?(y/n): ");
         if (System.console().readLine().toLowerCase().equals("y")) {
-            event.setSummary(summary).setDescription(description)
-                    .setStart(new EventDateTime().setDate(new DateTime(Date.from(Instant
-                            .from(startTime.atStartOfDay(ZoneId.systemDefault()).toInstant()))))); // can add time zone
-                                                                                                   // for EventDateTime
-
-            return;
+            timeFlag = true;
+            sTime = setStartAndEndTime(startTime);
+        } else {
+            sTime = new DateTime(Date.from(startTime.atStartOfDay(ZoneId.systemDefault()).toInstant()));
         }
-
-        DateTime sTime = setStartAndEndTime(startTime);
 
         // End time
         System.out.print("Enter End date(YYYY-MM-DD): ");
         String end = System.console().readLine();
-
-        DateTime eTime = setStartAndEndTime(LocalDate.parse(end));
+        LocalDate endTime = LocalDate.parse(end);
+        DateTime eTime = null;
+        if (timeFlag) {
+            eTime = setStartAndEndTime(endTime);
+        } else {
+            eTime = new DateTime(Date.from(endTime.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        }
 
         // set default values
         event.setSummary(summary).setDescription(description)
-                .setStart(new EventDateTime().setDateTime(sTime))
-                .setEnd(new EventDateTime().setDateTime(eTime));
+                .setStart(new EventDateTime().setDateTime(sTime).setTimeZone(TimeZone.getDefault().getID()))
+                .setEnd(new EventDateTime().setDateTime(eTime).setTimeZone(TimeZone.getDefault().getID()));
     }
 
     // set RDATE and EXDATE
@@ -186,38 +182,35 @@ public class PostEvents {
         StringBuilder forComp = new StringBuilder("RRULE:");
         StringBuilder RRULE = new StringBuilder("RRULE:");
 
-        // set frequency?
-        System.out.print("Set Frequency?(y/n): ");
-        if (System.console().readLine().toLowerCase().equals("y")) {
-            Frequency.printFrequency();
-            System.out.print("Enter Frequency value: ");
-            int freqn = Integer.parseInt(System.console().readLine());
-            Frequency freq = Frequency.getFrequency(freqn);
-            RRULE.append("FREQ=").append(freq).append(";");
-        }
+        // set frequency
+        Frequency.printFrequency();
+        System.out.print("Enter Frequency value: ");
+        int freqn = Integer.parseInt(System.console().readLine());
+        Frequency freq = Frequency.getFrequency(freqn);
+        RRULE.append("FREQ=").append(freq);
 
         // set interval
         System.out.print("Set Interval?(y/n): ");
         if (System.console().readLine().toLowerCase().equals("y")) {
             System.out.print("Enter Interval (Number): ");
             int interval = Integer.parseInt(System.console().readLine());
-            RRULE.append("INTERVAL=").append(interval).append(";");
+            RRULE.append(";").append("INTERVAL=").append(interval);
         }
 
-        // set count
+        // set either count or until
         System.out.print("Set Count?(y/n): ");
         if (System.console().readLine().toLowerCase().equals("y")) {
             System.out.print("Enter Count (Number): ");
             int count = Integer.parseInt(System.console().readLine());
-            RRULE.append("COUNT=").append(count).append(";");
-        }
-
-        // set until
-        System.out.print("Set Until by day?(y/n): ");
-        if (System.console().readLine().toLowerCase().equals("y")) {
-            System.out.print("Enter Until (YYYY-MM-DD): ");
-            String until = System.console().readLine();
-            RRULE.append("UNTIL=").append(until.replaceAll("-", "\u0000")).append(";");
+            RRULE.append(";").append("COUNT=").append(count);
+        } else {
+            // set until
+            System.out.print("Set Until by day?(y/n): ");
+            if (System.console().readLine().toLowerCase().equals("y")) {
+                System.out.print("Enter Until (YYYY-MM-DD): ");
+                String until = System.console().readLine();
+                RRULE.append(";").append("UNTIL=").append(until.replaceAll("-", "\u0000"));
+            }
         }
 
         // set day?
@@ -227,7 +220,7 @@ public class PostEvents {
             System.out.print("Enter Days value: ");
             int dayn = Integer.parseInt(System.console().readLine());
             Days day = Days.getDays(dayn);
-            RRULE.append("BYDAY=").append(day).append(";");
+            RRULE.append(";").append("BYDAY=").append(day);
         }
 
         // set RRULE
