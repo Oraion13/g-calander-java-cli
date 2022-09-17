@@ -5,6 +5,15 @@ public class GetEvents {
 
     public GetEvents(EventsManagement eventsManagement) {
         this.eventsManagement = eventsManagement;
+
+    }
+
+    // main caller
+    public void getEvents() {
+        System.out.print("\033[H\033[2J");
+        System.out.println("\n------------------------------------------");
+        System.out.println("\t\tGet Events");
+        System.out.println("------------------------------------------\n");
         while (true) {
             displayEventOptions();
             displayEventOperations();
@@ -12,6 +21,7 @@ public class GetEvents {
             break;
         }
     }
+
     // -------------------------- Event Operations --------------------------- //
 
     /**
