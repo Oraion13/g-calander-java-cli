@@ -50,4 +50,9 @@ public class EventsManagement {
 
         return events.setMaxResults(limit).execute().getItems();
     }
+
+    // create events
+    public void postEvent(Event event) throws IOException {
+        event = service.events().insert("primary", event).execute();
+    }
 }
