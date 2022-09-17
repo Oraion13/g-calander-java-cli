@@ -41,7 +41,7 @@ public class GCalanderCli {
    */
   private static final List<String> SCOPES = new ArrayList<String>() {
     {
-      add(CalendarScopes.CALENDAR_READONLY);
+      add(CalendarScopes.CALENDAR);
       add(CalendarScopes.CALENDAR_EVENTS);
     }
   };
