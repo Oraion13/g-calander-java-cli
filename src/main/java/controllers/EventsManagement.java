@@ -14,11 +14,13 @@ import com.google.api.services.calendar.model.Event;
 public class EventsManagement {
     Calendar service = null;
     Scanner sc = null;
+    String calanderId = null;
 
     // set the service credentials to access the API
-    public EventsManagement(Calendar service, Scanner sc) {
+    public EventsManagement(Calendar service, Scanner sc, String calanderId) {
         this.service = service;
         this.sc = sc;
+        this.calanderId = calanderId;
     }
 
     // print events
@@ -31,7 +33,7 @@ public class EventsManagement {
 
     // first N events
     public List<Event> getFirstNEvents(int limit) throws IOException {
-        List<Event> events = service.events().list("primary").setMaxResults(limit).execute().getItems();
+        List<Event> events = service.events().list(calanderId).setMaxResults(limit).execute().getItems();
 
         return events;
     }
@@ -39,7 +41,7 @@ public class EventsManagement {
     // prints events between two dates
     public List<Event> getEventsBetween(String from, String to, int limit) throws IOException {
         com.google.api.services.calendar.Calendar.Events.List events = service.events()
-                .list("primary")
+                .list(calanderId)
                 .setTimeMin(new DateTime(
                         Date.from(LocalDate.parse(from).atStartOfDay(ZoneId.systemDefault()).toInstant())));
 
@@ -53,11 +55,16 @@ public class EventsManagement {
 
     // create events
     public void postEvent(Event event) throws IOException {
-        event = service.events().insert("primary", event).execute();
+        event = service.events().insert(calanderId, event).execute();
     }
 
     // delete events
     public void deleteEvent(String eventID) throws IOException {
-        service.events().delete("primary", eventID).execute();
+        service.events().delete(calanderId, eventID).execute();
+    }
+
+    // update events
+    public void updateEvent(Event event) throws IOException {
+        service.events().update(calanderId, event.getId(), event).execute();
     }
 }
