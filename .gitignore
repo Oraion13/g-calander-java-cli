@@ -4,6 +4,11 @@
 # Ignore Gradle build output directory
 build
 
+# Ignore Intellij folder
 .idea
+
+# Ingnore VScode settings
 .vscode
+
+# Ignore tokens
 tokens/StoredCredential
