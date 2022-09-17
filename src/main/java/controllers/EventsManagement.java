@@ -43,7 +43,7 @@ public class EventsManagement {
                 .setTimeMin(new DateTime(
                         Date.from(LocalDate.parse(from).atStartOfDay(ZoneId.systemDefault()).toInstant())));
 
-        if (to.equals(" ") == false) {
+        if (!to.equals("0")) {
             events.setTimeMax(new DateTime(
                     Date.from(LocalDate.parse(to).atStartOfDay(ZoneId.systemDefault()).toInstant())));
         }
@@ -54,5 +54,10 @@ public class EventsManagement {
     // create events
     public void postEvent(Event event) throws IOException {
         event = service.events().insert("primary", event).execute();
+    }
+
+    // delete events
+    public void deleteEvent(String eventID) throws IOException {
+        service.events().delete("primary", eventID).execute();
     }
 }
