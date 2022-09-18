@@ -6,6 +6,8 @@ import com.google.api.services.calendar.model.EventAttendee;
 import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.EventReminder;
 
+import utils.ValidIOHandlers;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -84,72 +86,79 @@ public class PostEvents {
         while (true) {
             event = new Event();
 
+            // set default values to create an event
             setDefaultValues(event);
 
             // add recurence rules?
-            System.out.print("Is a resucrsive event?(y/n): ");
-            if (System.console().readLine().toLowerCase().equals("y")) {
+            if (ValidIOHandlers.getYorN("\nIs a resucrsive event? [Y/n]: ")) {
                 setReurrenceRules(event);
             }
 
             // set attendees
-            System.out.print("Invite attendees to event?(y/n): ");
-            if (System.console().readLine().toLowerCase().equals("y")) {
+            if (ValidIOHandlers.getYorN("\nInvite attendees to event? [Y/n]: ")) {
                 setAttendees(event);
             }
 
             // set remainders
-            System.out.print("Set remainders or use default?(y/n): ");
-            if (System.console().readLine().toLowerCase().equals("y")) {
+            if (ValidIOHandlers.getYorN("\nSet remainders or use default? [Y/n]: ")) {
                 setRemainder(event);
             }
 
             eventsManagement.postEvent(event);
-
             System.out.println("Event created!!");
 
-            break;
+            if (!ValidIOHandlers.getYorN("Continue adding events? [Y/n]: "))
+                break;
         }
     }
 
-    // get time for start and end
-    private DateTime setStartAndEndTime(LocalDate ld) {
-        System.out.print("Enter hour(HH)[0 - 23]: ");
-        int hour = Integer.parseInt(System.console().readLine());
-        System.out.print("Enter minute(MM)[0 - 59]: ");
-        int minute = Integer.parseInt(System.console().readLine());
+    /**
+     * Get time for start and end event
+     * 
+     * @param ld LocalDate - YYYY-MM-DD
+     * @return a DateTime vale in RFC3339 format
+     * @throws IOException
+     */
+    private DateTime setStartAndEndTime(LocalDate ld) throws IOException {
+        int hour = ValidIOHandlers.getChoice("Enter hour(HH)[0 - 23]: ");
+        int minute = ValidIOHandlers.getChoice("Enter minute(MM)[0 - 59]: ");
 
         return new DateTime(Date.from(ld.atTime(LocalTime.of(hour, minute, 00))
                 .atZone(ZoneId.systemDefault()).toInstant()));
-
     }
 
-    // default values for an event
-    protected void setDefaultValues(Event event) {
-        System.out.print("Event summary: ");
-        String summary = System.console().readLine();
+    /**
+     * Default values for an event
+     * Summary
+     * Description
+     * Start and End DateTime values
+     * 
+     * @param event New event to set default values
+     * @throws IOException
+     */
+    protected void setDefaultValues(Event event) throws IOException {
+        // get summary
+        String summary = ValidIOHandlers.getString("Event summary: ");
 
-        System.out.print("Enter Description: ");
-        String description = System.console().readLine();
+        // get description
+        String description = ValidIOHandlers.getString("Enter Description: ");
 
-        // Start time
-        System.out.print("Enter Start date(YYYY-MM-DD): ");
-        String start = System.console().readLine();
+        // Event starting time
+        String start = ValidIOHandlers.getDate("Enter Start date [YYYY-MM-DD]: ", 1);
         LocalDate startTime = LocalDate.parse(start);
 
+        // flag to check if both start and end timeformat are Date/DateTime
         boolean timeFlag = false;
         DateTime sTime = null;
-        System.out.print("Add start and end time?(y/n): ");
-        if (System.console().readLine().toLowerCase().equals("y")) {
+        if (ValidIOHandlers.getYorN("Add start and end time? [Y/n]: ")) {
             timeFlag = true;
             sTime = setStartAndEndTime(startTime);
         } else {
             sTime = new DateTime(Date.from(startTime.atStartOfDay(ZoneId.systemDefault()).toInstant()));
         }
 
-        // End time
-        System.out.print("Enter End date(YYYY-MM-DD): ");
-        String end = System.console().readLine();
+        // Event starting time
+        String end = ValidIOHandlers.getDate("Enter End date [YYYY-MM-DD]: ", 1);
         LocalDate endTime = LocalDate.parse(end);
         DateTime eTime = null;
         if (timeFlag) {
@@ -164,14 +173,19 @@ public class PostEvents {
                 .setEnd(new EventDateTime().setDateTime(eTime).setTimeZone(TimeZone.getDefault().getID()));
     }
 
-    // set RDATE and EXDATE
+    /**
+     * Set RDATE and EXDATE
+     * 
+     * @param recurrence list of String to store recurrence rule
+     * @param name       can be R / EX DATE
+     */
     private void setRdateEXdate(List<String> recurrence, String name) {
+        // a temporary value to check if no changes occured
         StringBuilder forComp = new StringBuilder(name + "DATE;VALUE=DATE:");
         StringBuilder DATE = new StringBuilder(name + "DATE;VALUE=DATE:");
         System.out.println("Enter 0 to exit...");
         while (true) {
-            System.out.print("Enter date (YYYY-MM-DD): ");
-            String recur = System.console().readLine();
+            String recur = ValidIOHandlers.getDate("Enter date [YYYY-MM-DD / 0]: ", 0);
 
             if (recur.equals("0"))
                 break;
@@ -184,49 +198,46 @@ public class PostEvents {
         }
     }
 
-    // get RRULE, RDATE, EXDATE
-    protected void setReurrenceRules(Event event) {
+    /**
+     * Get RRULE, RDATE, EXDATE
+     * 
+     * @param event new event
+     * @throws IOException
+     */
+    protected void setReurrenceRules(Event event) throws IOException {
         List<String> recurrence = new ArrayList<>();
+        // a temporary value to check if no changes occured
         StringBuilder forComp = new StringBuilder("RRULE:");
         StringBuilder RRULE = new StringBuilder("RRULE:");
 
-        // set frequency
+        // set frequency - DAILY, MONTHLY ...
         Frequency.printFrequency();
-        System.out.print("Enter Frequency value: ");
-        int freqn = Integer.parseInt(System.console().readLine());
+        int freqn = ValidIOHandlers.getChoice("Enter Frequency value(default = YEARLY) [1 - 7]: ");
         Frequency freq = Frequency.getFrequency(freqn);
         RRULE.append("FREQ=").append(freq);
 
-        // set interval
-        System.out.print("Set Interval?(y/n): ");
-        if (System.console().readLine().toLowerCase().equals("y")) {
-            System.out.print("Enter Interval (Number): ");
-            int interval = Integer.parseInt(System.console().readLine());
+        // set interval - 1, 2, 3 ...
+        if (ValidIOHandlers.getYorN("Set Interval? [Y/n]: ")) {
+            int interval = ValidIOHandlers.getChoice("Enter Interval [Number]: ");
             RRULE.append(";").append("INTERVAL=").append(interval);
         }
 
-        // set either count or until
-        System.out.print("Set Count?(y/n): ");
-        if (System.console().readLine().toLowerCase().equals("y")) {
-            System.out.print("Enter Count (Number): ");
-            int count = Integer.parseInt(System.console().readLine());
+        // set either count or until - 1, 2, 3 ...
+        if (ValidIOHandlers.getYorN("Set Count? [Y/n]: ")) {
+            int count = ValidIOHandlers.getChoice("Enter Count [Number]: ");
             RRULE.append(";").append("COUNT=").append(count);
         } else {
             // set until
-            System.out.print("Set Until by day?(y/n): ");
-            if (System.console().readLine().toLowerCase().equals("y")) {
-                System.out.print("Enter Until (YYYY-MM-DD): ");
-                String until = System.console().readLine();
+            if (ValidIOHandlers.getYorN("Set Until by day? [Y/n]: ")) {
+                String until = ValidIOHandlers.getDate("Enter Until [YYYY-MM-DD]: ", 1);
                 RRULE.append(";").append("UNTIL=").append(until.replaceAll("-", "\u0000"));
             }
         }
 
         // set day?
-        System.out.print("Set by week days?(y/n): ");
-        if (System.console().readLine().toLowerCase().equals("y")) {
+        if (ValidIOHandlers.getYorN("Set by week days? [Y/n]: ")) {
             Days.printDays();
-            System.out.print("Enter Days value: ");
-            int dayn = Integer.parseInt(System.console().readLine());
+            int dayn = ValidIOHandlers.getChoice("Enter Days value(default = MO) [Number]: ");
             Days day = Days.getDays(dayn);
             RRULE.append(";").append("BYDAY=").append(day);
         }
@@ -237,28 +248,29 @@ public class PostEvents {
         }
 
         // set RDATE
-        System.out.print("Set Recurring Dates?(y/n): ");
-        if (System.console().readLine().toLowerCase().equals("y")) {
+        if (ValidIOHandlers.getYorN("Set Recurring Dates? [Y/n]: ")) {
             setRdateEXdate(recurrence, "R");
         }
 
         // set RDATE
-        System.out.print("Set Exception Dates?(y/n): ");
-        if (System.console().readLine().toLowerCase().equals("y")) {
+        if (ValidIOHandlers.getYorN("Set Exception Dates? [Y/n]: ")) {
             setRdateEXdate(recurrence, "EX");
         }
 
         event.setRecurrence(recurrence);
     }
 
-    // invite attendees for event
+    /**
+     * Invite attendees for event
+     * 
+     * @param event new event
+     */
     protected void setAttendees(Event event) {
         List<EventAttendee> attendees = new ArrayList<>();
 
         System.out.println("Enter 0 to exit...");
         while (true) {
-            System.out.print("Enter an email to invite: ");
-            String email = System.console().readLine().toLowerCase();
+            String email = ValidIOHandlers.getString("Enter an email to invite: ");
             if (email.equals("0"))
                 break;
 
@@ -275,16 +287,23 @@ public class PostEvents {
             attendees.add(new EventAttendee().setEmail(email));
         }
 
+        // if an attendee is added
         if (attendees.size() > 0) {
             event.setAttendees(attendees);
         }
     }
 
+    /**
+     * Set email and popu remainder
+     * get time or set default
+     * 
+     * @param reminders event remainder
+     * @param method    email / popup
+     */
     private void setRemainderEvents(List<EventReminder> reminders, String method) {
-        System.out.println("Enter remainder time: ");
+        System.out.println("Enter remainder time: \n");
 
-        System.out.print("In Hours?(y/n): ");
-        if (System.console().readLine().toLowerCase().equals("y")) {
+        if (ValidIOHandlers.getYorN("In Hours? [Y/n]: ")) {
             System.out.print("Enter Hour before actual event: ");
             int hour = Integer.parseInt(System.console().readLine());
             reminders.add(new EventReminder().setMethod(method).setMinutes(hour * 60));
@@ -295,22 +314,26 @@ public class PostEvents {
         }
     }
 
-    // set remainder
+    /**
+     * Set email and popu remainder
+     * 
+     * @param event new event
+     */
     protected void setRemainder(Event event) {
         List<EventReminder> reminders = new ArrayList<>();
 
-        System.out.print("Set Email remainder?(y/n): ");
-        if (System.console().readLine().toLowerCase().equals("y")) {
+        // Email remainder
+        if (ValidIOHandlers.getYorN("Set Email remainder? [Y/n]: ")) {
             setRemainderEvents(reminders, "email");
         } else {
             reminders.add(new EventReminder().setMethod("email").setMinutes(60));
         }
 
-        System.out.print("Set Popup remainder?(y/n): ");
-        if (System.console().readLine().toLowerCase().equals("y")) {
+        // Popup remainder
+        if (ValidIOHandlers.getYorN("Set Popup remainder? [Y/n]: ")) {
             setRemainderEvents(reminders, "popup");
         } else {
-            reminders.add(new EventReminder().setMethod("popuo").setMinutes(10));
+            reminders.add(new EventReminder().setMethod("popup").setMinutes(10));
         }
 
         event.setReminders(new Event.Reminders().setUseDefault(false).setOverrides(reminders));
