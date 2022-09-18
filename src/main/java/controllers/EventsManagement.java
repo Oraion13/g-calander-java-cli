@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
-import java.util.Scanner;
 
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
@@ -13,13 +12,11 @@ import com.google.api.services.calendar.model.Event;
 
 public class EventsManagement {
     Calendar service = null;
-    Scanner sc = null;
     String calanderId = null;
 
     // set the service credentials to access the API
-    public EventsManagement(Calendar service, Scanner sc, String calanderId) {
+    public EventsManagement(Calendar service, String calanderId) {
         this.service = service;
-        this.sc = sc;
         this.calanderId = calanderId;
     }
 

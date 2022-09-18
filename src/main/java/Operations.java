@@ -10,12 +10,10 @@ import controllers.UpdateEvents;
 
 public class Operations {
     EventsManagement eventsManagement = null;
-    Scanner sc = null;
 
     // main caller
-    public Operations(Calendar service, Scanner sc) {
-        this.eventsManagement = new EventsManagement(service, sc, "primary");
-        this.sc = sc;
+    public Operations(Calendar service) {
+        this.eventsManagement = new EventsManagement(service, "primary");
         while (true) {
             // print the options
             mainOptions();

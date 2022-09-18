@@ -18,7 +18,6 @@ import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 /* class to demonstarte use of Calendar events list API */
 public class GCalanderCli {
@@ -84,11 +83,7 @@ public class GCalanderCli {
         .build();
 
     // operations
-    try (Scanner sc = new Scanner(System.in);) {
-      new Operations(service, sc);
-    } catch (Exception e) {
-      // TODO: handle exception
-    }
+    new Operations(service);
 
   }
 }
