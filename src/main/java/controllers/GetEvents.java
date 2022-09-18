@@ -1,5 +1,7 @@
 package controllers;
 
+import utils.ValidIOHandlers;
+
 public class GetEvents {
     EventsManagement eventsManagement = null;
 
@@ -10,13 +12,13 @@ public class GetEvents {
 
     // main caller
     public void getEvents() {
-        System.out.print("\033[H\033[2J");
-        System.out.println("\n------------------------------------------");
-        System.out.println("\t\tGet Events");
-        System.out.println("------------------------------------------\n");
         while (true) {
             displayEventOptions();
-            displayEventOperations();
+            int choice = displayEventOperations();
+
+            if (choice != 0) {
+                continue;
+            }
 
             break;
         }
@@ -32,7 +34,11 @@ public class GetEvents {
     public void displayEventOptions() {
         System.out.print("\033[H\033[2J");
         System.out.println("\n------------------------------------------");
+        System.out.println("\t\tGet Events");
+        System.out.println("------------------------------------------\n");
+        System.out.println("\n------------------------------------------");
         System.out.println("Choices: ");
+        System.out.println("0 - Exit");
         System.out.println("1 - Display first 10 events");
         System.out.println("2 - Get Events Between dates");
         System.out.println("------------------------------------------\n");
@@ -43,10 +49,10 @@ public class GetEvents {
      * 
      * @return an intger value (main option)
      */
-    public void displayEventOperations() {
+    public int displayEventOperations() {
         int choice = 0;
         try {
-            choice = 2;
+            choice = ValidIOHandlers.getChoice("Enter a choice [0 - 2]: ");
 
             switch (choice) {
                 // display first 10 events
@@ -62,10 +68,12 @@ public class GetEvents {
                     break;
 
                 default:
-                    return;
+                    return choice;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        return choice;
     }
 }

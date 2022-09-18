@@ -5,6 +5,7 @@ import controllers.EventsManagement;
 import controllers.GetEvents;
 import controllers.PostEvents;
 import controllers.UpdateEvents;
+import utils.ValidIOHandlers;
 
 public class Operations {
     EventsManagement eventsManagement = null;
@@ -15,11 +16,14 @@ public class Operations {
         while (true) {
             // print the options
             mainOptions();
-            // int choice = mainOperations();
-            mainOperations();
+            int choice = mainOperations();
+
+            // exit point
+            if (choice != 0) {
+                continue;
+            }
 
             break;
-
         }
     }
 
@@ -54,7 +58,7 @@ public class Operations {
     private int mainOperations() {
         int choice = 0;
         try {
-            choice = 4;
+            choice = ValidIOHandlers.getChoice("Enter a choice [0 - 4]: ");
 
             switch (choice) {
                 // display events
