@@ -14,12 +14,21 @@ public class ValidIOHandlers {
      * @return an integer choice
      * @throws IOException
      */
-    public static int getChoice(Scanner sc) throws IOException {
-        System.out.print("Enter a choice: ");
-        int choice = sc.nextInt();
+    public static int getChoice(String message) throws IOException {
+        while (true) {
+            try {
+                System.out.print(message);
 
-        sc.close();
-        return choice;
+                int choice = Integer.parseInt(System.console().readLine());
+
+                // if correct input is given, return the input
+                if (choice >= 0)
+                    return choice;
+            } catch (NumberFormatException e) {
+                System.out.println("Enter a valid input (Number)!");
+            }
+
+        }
 
     }
 
