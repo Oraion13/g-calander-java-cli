@@ -35,6 +35,9 @@ public class Operations {
     private void mainOptions() {
         System.out.print("\033[H\033[2J");
         System.out.println("\n------------------------------------------");
+        System.out.println("\t\tGoogle Calander");
+        System.out.println("------------------------------------------\n");
+        System.out.println("\n------------------------------------------");
         System.out.println("Choices: ");
         System.out.println("0 - Exit");
         System.out.println("1 - Display events");

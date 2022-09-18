@@ -12,6 +12,7 @@ public class GetEvents {
 
     // main caller
     public void getEvents() {
+        System.out.print("\033[H\033[2J");
         while (true) {
             displayEventOptions();
             int choice = displayEventOperations();
@@ -32,7 +33,6 @@ public class GetEvents {
      * 2 - Get Events Between dates
      */
     public void displayEventOptions() {
-        System.out.print("\033[H\033[2J");
         System.out.println("\n------------------------------------------");
         System.out.println("\t\tGet Events");
         System.out.println("------------------------------------------\n");
@@ -64,7 +64,11 @@ public class GetEvents {
                 // print events between
                 case 2:
                     eventsManagement.printEvents(
-                            eventsManagement.getEventsBetween("2022-09-15", "2022-09-20", 10));
+                            eventsManagement.getEventsBetween(ValidIOHandlers
+                                    .getDate("Enter a Starting date [YYYY-MM-DD]: ", 1),
+                                    ValidIOHandlers
+                                            .getDate("Enter a Ending date [YYYY-MM-DD / 0]: ", 0),
+                                    ValidIOHandlers.getChoice("Enter events limit [Number]:")));
                     break;
 
                 default:
