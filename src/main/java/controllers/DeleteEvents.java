@@ -24,7 +24,7 @@ public class DeleteEvents {
             System.out.println("Get events From - To...\nEnter '0' to exit...\n");
 
             // get events start and ending date
-            String from = ValidIOHandlers.getDate("Enter the start date [YYYY-MM-DD / 0]: ", 0);
+            String from = ValidIOHandlers.getDate("Enter the Start date [YYYY-MM-DD / 0]: ", 0);
             if (from.equals("0"))
                 break;
             String to = ValidIOHandlers.getDate("Enter the date 'To', '0' for no ending date [YYYY-MM-DD / 0]: ", 0);
@@ -50,7 +50,7 @@ public class DeleteEvents {
         System.out.println("Delete ID :   Event\n-----------------------------------");
         eventsManagement.printMapEvents(toDelete);
 
-        System.out.print("Enter a Delete ID to delete an event (Number / 0): ");
+        System.out.print("Enter a Delete ID to delete an event [Number / 0]: ");
         int deleteID = Integer.parseInt(System.console().readLine());
 
         if (deleteID == 0)
