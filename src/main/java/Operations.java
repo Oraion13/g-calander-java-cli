@@ -1,5 +1,3 @@
-import java.util.Scanner;
-
 import com.google.api.services.calendar.Calendar;
 
 import controllers.DeleteEvents;
