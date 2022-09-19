@@ -14,11 +14,12 @@ public class UpdateEvents extends PostEvents {
 
     // main caller
     public void updateEvent() throws IOException {
-        System.out.print("\033[H\033[2J");
-        System.out.println("\n------------------------------------------");
-        System.out.println("\t\tUpdate Events");
-        System.out.println("------------------------------------------\n");
         while (true) {
+            System.out.print("\033[H\033[2J");
+            System.out.println("\n------------------------------------------");
+            System.out.println("\t\tUpdate Events");
+            System.out.println("------------------------------------------\n");
+
             System.out.println("Get events From - To...\nEnter '0' to exit...\n");
 
             String from = ValidIOHandlers.getDate("Enter the Start date [YYYY-MM-DD / 0]: ", 0);

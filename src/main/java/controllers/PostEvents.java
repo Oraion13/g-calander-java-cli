@@ -81,11 +81,12 @@ public class PostEvents {
 
     // main caller
     public void postEvents() throws IOException {
-        System.out.print("\033[H\033[2J");
-        System.out.println("\n------------------------------------------");
-        System.out.println("\t\tPost Events");
-        System.out.println("------------------------------------------\n");
         while (true) {
+            System.out.print("\033[H\033[2J");
+            System.out.println("\n------------------------------------------");
+            System.out.println("\t\tPost Events");
+            System.out.println("------------------------------------------\n");
+
             event = new Event();
 
             // set default values to create an event

@@ -30,6 +30,7 @@ public class EventsManagement {
      * @param events Events in a List<Event>
      */
     public void printEvents(List<Event> events) {
+        System.out.println();
         for (Event event : events) {
             System.out.print(event.getSummary() + " || ");
             System.out.println(event.getStart().getDateTime());
@@ -42,6 +43,7 @@ public class EventsManagement {
      * @param events Events in a Map<Integer, Event>
      */
     public void printMapEvents(Map<Integer, Event> events) {
+        System.out.println();
         for (Map.Entry<Integer, Event> event : events.entrySet()) {
             System.out.println(
                     event.getKey() + " : " + event.getValue().getSummary() + " || "
