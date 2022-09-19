@@ -103,4 +103,22 @@ public class ValidIOHandlers {
         }
     }
 
+    public static String getMinHour(String message, boolean isMinute) throws IOException {
+        while (true) {
+            int num = getChoice(message);
+
+            // is minute
+            if (isMinute && (num >= 0 && num <= 59)) {
+                return "" + num;
+            }
+
+            // is hour
+            if (num >= 0 && num <= 23) {
+                return "" + num;
+            }
+
+            System.out.println("Enter a valid " + (isMinute ? "minute!" : "hour!"));
+        }
+    }
+
 }
