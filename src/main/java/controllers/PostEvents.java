@@ -23,6 +23,8 @@ import java.util.regex.Pattern;
 public class PostEvents {
     EventsManagement eventsManagement = null;
     Event event = null;
+    // flag to check if the timeformat are same
+    boolean timeFlag;
 
     // FREQ in RRULE
     enum Frequency {
@@ -107,8 +109,12 @@ public class PostEvents {
             eventsManagement.postEvent(event);
             System.out.println("Event created!!");
 
-            if (!ValidIOHandlers.getYorN("Continue adding events? [Y/n]: "))
+            if (!ValidIOHandlers.getYorN("Continue adding events? [Y/n]: ")) {
                 break;
+            }
+
+            // reset timeflag
+            timeFlag = false;
         }
     }
 
@@ -147,8 +153,6 @@ public class PostEvents {
         String start = ValidIOHandlers.getDate("Enter Start date [YYYY-MM-DD]: ", 1);
         LocalDate startTime = LocalDate.parse(start);
 
-        // flag to check if both start and end timeformat are Date/DateTime
-        boolean timeFlag = false;
         DateTime sTime = null;
         if (ValidIOHandlers.getYorN("Add start and end time? [Y/n]: ")) {
             timeFlag = true;
@@ -178,24 +182,46 @@ public class PostEvents {
      * 
      * @param recurrence list of String to store recurrence rule
      * @param name       can be R / EX DATE
+     * @throws IOException
      */
-    private void setRdateEXdate(List<String> recurrence, String name) {
+    private void setRdateEXdate(List<String> recurrence, String name) throws IOException {
         // a temporary value to check if no changes occured
         StringBuilder forComp = new StringBuilder(name + "DATE;VALUE=DATE:");
         StringBuilder DATE = new StringBuilder(name + "DATE;VALUE=DATE:");
         System.out.println("Enter 0 to exit...");
         while (true) {
-            String recur = ValidIOHandlers.getDate("Enter date [YYYY-MM-DD / 0]: ", 0);
+            String recur = ValidIOHandlers.getDate("Enter date [YYYY-MM-DD / 0]: ", 0)
+                    .replaceAll("-", "\u0000");
 
             if (recur.equals("0"))
                 break;
 
-            DATE.append(recur.replaceAll("-", "\u0000")).append(",");
+            // everything in same format - Start, End, UNTIL, RDATE, EXDATE
+            if (timeFlag) {
+                recur = setDateAndTime(recur);
+            }
+
+            DATE.append(recur).append(",");
         }
 
         if (DATE.compareTo(forComp) != 0) {
-            recurrence.add(DATE.toString());
+            recurrence.add(DATE.deleteCharAt(DATE.length() - 1).toString());
         }
+    }
+
+    /**
+     * Set time for dates - UNTIL, RDATE, EXDATE
+     * 
+     * @param date - UNTIL, RDATE, EXDATE
+     * @return a String with Date and Time combined
+     * @throws IOException
+     */
+    private String setDateAndTime(String date) throws IOException {
+        String hour = ValidIOHandlers.getMinHour("Enter hour(HH)[0 - 23]: ", false);
+        String minute = ValidIOHandlers.getMinHour("Enter minute(MM)[0 - 59]: ", true);
+
+        return date + "T" + (hour.length() == 2 ? hour : ("0" + hour))
+                + (minute.length() == 2 ? minute : ("0" + minute));
     }
 
     /**
@@ -229,8 +255,15 @@ public class PostEvents {
         } else {
             // set until
             if (ValidIOHandlers.getYorN("Set Until by day? [Y/n]: ")) {
-                String until = ValidIOHandlers.getDate("Enter Until [YYYY-MM-DD]: ", 1);
-                RRULE.append(";").append("UNTIL=").append(until.replaceAll("-", "\u0000"));
+                String until = ValidIOHandlers.getDate("Enter Until [YYYY-MM-DD]: ", 1)
+                        .replaceAll("-", "\u0000");
+
+                // everything in same format - Start, End, UNTIL, RDATE, EXDATE
+                if (timeFlag) {
+                    until = setDateAndTime(until);
+                }
+
+                RRULE.append(";").append("UNTIL=").append(until);
             }
         }
 
@@ -248,12 +281,12 @@ public class PostEvents {
         }
 
         // set RDATE
-        if (ValidIOHandlers.getYorN("Set Recurring Dates? [Y/n]: ")) {
+        if (ValidIOHandlers.getYorN("\nSet Recurring Dates? [Y/n]: ")) {
             setRdateEXdate(recurrence, "R");
         }
 
         // set RDATE
-        if (ValidIOHandlers.getYorN("Set Exception Dates? [Y/n]: ")) {
+        if (ValidIOHandlers.getYorN("\nSet Exception Dates? [Y/n]: ")) {
             setRdateEXdate(recurrence, "EX");
         }
 
